@@ -10,7 +10,6 @@ const Register = () => {
     password: "",
     name: "",
   });
-  
   const [err, setErr] = useState(null);
 
   const handleChange = (e) => {
@@ -21,7 +20,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:8800/backend/auth/register", inputs);
+      await axios.post("http://localhost:8800/api/auth/register", inputs);
     } catch (err) {
       setErr(err.response.data);
     }
@@ -41,13 +40,13 @@ const Register = () => {
           </p>
           <span>Do you have an account?</span>
           <Link to="/login">
-          <button>Login</button>
+            <button>Login</button>
           </Link>
         </div>
         <div className="right">
           <h1>Register</h1>
           <form>
-          <input
+            <input
               type="text"
               placeholder="Username"
               name="username"
