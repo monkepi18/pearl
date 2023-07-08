@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import "./login.scss";
 
@@ -45,7 +45,7 @@ const Login = () => {
         <div className="right">
           <h1>Login</h1>
           <form>
-          <input
+            <input
               type="text"
               placeholder="Username"
               name="username"
