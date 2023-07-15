@@ -3,7 +3,7 @@ import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlin
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import TextsmsOutlinedIcon from "@mui/icons-material/TextsmsOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
 import { useState } from "react";
@@ -12,10 +12,12 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { useContext } from "react";
 import { AuthContext } from "../../context/authContext";
+import UpdatePost from "../updatePost/UpdatePost"; // Import the UpdatePost component
 
 const Post = ({ post }) => {
   const [commentOpen, setCommentOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false); // State variable to track edit open
 
   const { currentUser } = useContext(AuthContext);
 
@@ -52,11 +54,15 @@ const Post = ({ post }) => {
   );
 
   const handleLike = () => {
-    mutation.mutate(data.includes(currentUser.id));
+    mutation.mutate(data.includes(currentUser.userid));
   };
 
   const handleDelete = () => {
     deleteMutation.mutate(post.id);
+  };
+
+  const handleEdit = () => {
+    setEditOpen(true); // Open the EditPost component
   };
 
   return (
@@ -64,10 +70,10 @@ const Post = ({ post }) => {
       <div className="container">
         <div className="user">
           <div className="userInfo">
-            <img src={"/upload/"+post.profilePic} alt="" />
+            <img src={"/upload/" + post.profilePic} alt="" />
             <div className="details">
               <Link
-                to={`/profile/${post.userId}`}
+                to={`/profile/:${post.userId}`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <span className="name">{post.name}</span>
@@ -75,10 +81,15 @@ const Post = ({ post }) => {
               <span className="date">{moment(post.createdAt).fromNow()}</span>
             </div>
           </div>
-          <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
-          {menuOpen && post.userId === currentUser.id && (
-            <button onClick={handleDelete}>delete</button>
-          )}
+          <div className="menu">
+            <MoreVertIcon onClick={() => setMenuOpen(!menuOpen)} />
+            {menuOpen && post.userId === currentUser.userid && (
+              <div className="vertical-menu">
+                <button onClick={handleEdit}>Edit</button>
+                <button onClick={handleDelete}>Delete</button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="content">
           <p>{post.desc}</p>
@@ -88,7 +99,7 @@ const Post = ({ post }) => {
           <div className="item">
             {isLoading ? (
               "loading"
-            ) : data.includes(currentUser.id) ? (
+            ) : data.includes(currentUser.userid) ? (
               <FavoriteOutlinedIcon
                 style={{ color: "red" }}
                 onClick={handleLike}
@@ -109,6 +120,10 @@ const Post = ({ post }) => {
         </div>
         {commentOpen && <Comments postId={post.id} />}
       </div>
+
+      {editOpen && (
+        <UpdatePost post={post} onClose={() => setEditOpen(false)} />
+      )} {/* Render UpdatePost component when editOpen is true */}
     </div>
   );
 };

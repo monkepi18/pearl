@@ -11,6 +11,7 @@ const Register = () => {
     name: "",
   });
   const [err, setErr] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,12 +22,11 @@ const Register = () => {
 
     try {
       await axios.post("http://localhost:8800/api/auth/register", inputs);
+      setSuccessMessage("User has been registered successfully!");
     } catch (err) {
       setErr(err.response.data);
     }
   };
-
-  console.log(err)
 
   return (
     <div className="register">
@@ -70,7 +70,8 @@ const Register = () => {
               name="name"
               onChange={handleChange}
             />
-            {err && err}
+            {err && <div className="error">{err}</div>}
+            {successMessage && <div className="success">{successMessage}</div>}
             <button onClick={handleClick}>Register</button>
           </form>
         </div>

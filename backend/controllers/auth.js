@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export const register = (req, res) => {
   //CHECK USER IF EXISTS
-
+  console.log("gvfjhgj");
   const q = "SELECT * FROM users WHERE username = ?";
 
   db.query(q, [req.body.username], (err, data) => {
@@ -47,13 +47,16 @@ export const login = (req, res) => {
     if (!checkPassword)
       return res.status(400).json("Wrong password or username!");
 
-    const token = jwt.sign({ id: data[0].id }, "secretkey");
-
+    //console.log(data[0]);
+    const token = jwt.sign({ id: data[0].userid }, "secretkey");
+    
     const { password, ...others } = data[0];
 
     res
       .cookie("accessToken", token, {
         httpOnly: true,
+        secure:true,
+        sameSite:"none"
       })
       .status(200)
       .json(others);
@@ -61,8 +64,11 @@ export const login = (req, res) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("accessToken",{
-    secure:true,
-    sameSite:"none"
-  }).status(200).json("User has been logged out.")
+  res.clearCookie("accessToken", {
+    secure: true,
+    sameSite: "none",
+  }).status(200).json("User has been logged out.");
+
+  // Clear user data from local storage
+  localStorage.removeItem("currentUser");
 };

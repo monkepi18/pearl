@@ -1,4 +1,4 @@
-import "./share.scss";
+import "./edit.scss";
 import Image from "../../assets/img.png";
 import Map from "../../assets/map.png";
 import { useContext, useState } from "react";
@@ -6,9 +6,9 @@ import { AuthContext } from "../../context/authContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 
-const Share = () => {
-  const [file, setFile] = useState(null);
-  const [desc, setDesc] = useState("");
+const Edit = ({ post, onClose }) => {
+  const [file, setFile] = useState(post.img ? post.img : null);
+  const [desc, setDesc] = useState(post.desc ? post.desc : "");
   const [showCancel, setShowCancel] = useState(false);
 
   const upload = async () => {
@@ -27,14 +27,14 @@ const Share = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (newPost) => {
-      console.log(newPost);
-      return makeRequest.post("/posts", newPost);
+    (updatedPost) => {
+      return makeRequest.put("/posts/" + post.id, updatedPost);
     },
     {
       onSuccess: () => {
         // Invalidate and refetch
         queryClient.invalidateQueries(["posts"]);
+        onClose(); // Close the Edit component after successfully updating the post
       },
     }
   );
@@ -45,15 +45,10 @@ const Share = () => {
     if (file) imgUrl = await upload();
     console.log(imgUrl);
     mutation.mutate({ desc, img: imgUrl });
-    setDesc("");
-    setFile(null);
-    setShowCancel(false); // Reset the cancel button state
   };
 
   const handleCancel = () => {
-    setDesc("");
-    setFile(null);
-    setShowCancel(false);
+    onClose(); // Close the Edit component without making any changes
   };
 
   const handleInputChange = (e) => {
@@ -61,7 +56,6 @@ const Share = () => {
     if (!showCancel) setShowCancel(true);
   };
 
-  // Check if the required fields have content to enable the Share button
   const isShareButtonClickable = desc.trim() !== "" || file !== null;
 
   return (
@@ -113,9 +107,9 @@ const Share = () => {
           <div className="right">
             <button
               onClick={handleClick}
-              disabled={!isShareButtonClickable} // Disable the Share button if required fields are empty
+              disabled={!isShareButtonClickable}
             >
-              Share
+              Save
             </button>
           </div>
         </div>
@@ -124,4 +118,4 @@ const Share = () => {
   );
 };
 
-export default Share;
+export default Edit;

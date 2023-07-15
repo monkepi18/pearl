@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import moment from "moment";
 
 export const getStories = (req, res) => {
+  const userId = req.query.userId;
   const token = req.cookies.accessToken;
   if (!token) return res.status(401).json("Not logged in!");
 
@@ -11,11 +12,11 @@ export const getStories = (req, res) => {
 
     console.log(userId);
 
-    const q = `SELECT s.*, name FROM stories AS s JOIN users AS u ON (u.id = s.userId)
+    const q = `SELECT s.*, name FROM stories AS s JOIN users AS u ON (u.userid = s.userId)
     LEFT JOIN relationships AS r ON (s.userId = r.followedUserId AND r.followerUserId= ?) LIMIT 4`;
 
     db.query(q, [userInfo.id], (err, data) => {
-      if (err) return res.status(500).json(err);
+      if (err) return res.status(500).json({msg: "this is gucci"});
       return res.status(200).json(data);
     });
   });

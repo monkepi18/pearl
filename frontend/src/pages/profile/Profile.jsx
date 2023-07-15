@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./profile.scss";
 import FacebookTwoToneIcon from "@mui/icons-material/FacebookTwoTone";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
@@ -11,17 +13,25 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Posts from "../../components/posts/Posts";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
-import { useLocation } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../context/authContext";
 import Update from "../../components/update/Update";
-import { useState } from "react";
 
 const Profile = () => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const userId = parseInt(useLocation().pathname.split("/")[2].substring(1));
+  useEffect(() => {
+    console.log(userId + "yaha pe profile me");
+  }, [userId]);
 
-  const userId = parseInt(useLocation().pathname.split("/")[2]);
+  // Redirect to login if not logged in
+  console.log(currentUser);
+  if (!currentUser) {
+    navigate("/login");
+    return null;
+  }
 
   const { isLoading, error, data } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + userId).then((res) => {
@@ -54,7 +64,7 @@ const Profile = () => {
   );
 
   const handleFollow = () => {
-    mutation.mutate(relationshipData.includes(currentUser.id));
+    mutation.mutate(relationshipData.includes(currentUser.userid));
   };
 
   return (
@@ -64,8 +74,12 @@ const Profile = () => {
       ) : (
         <>
           <div className="images">
-            <img src={"/upload/"+data.coverPic} alt="" className="cover" />
-            <img src={"/upload/"+data.profilePic} alt="" className="profilePic" />
+            <img src={"/upload/" + data.coverPic} alt="" className="cover" />
+            <img
+              src={"/upload/" + data.profilePic}
+              alt=""
+              className="profilePic"
+            />
           </div>
           <div className="profileContainer">
             <div className="uInfo">
@@ -98,13 +112,11 @@ const Profile = () => {
                     <span>{data.website}</span>
                   </div>
                 </div>
-                {rIsLoading ? (
-                  "loading"
-                ) : userId === currentUser.id ? (
-                  <button onClick={() => setOpenUpdate(true)}>update</button>
+                {userId === currentUser.userid ? (
+                  <button onClick={() => setOpenUpdate(true)}>Update</button>
                 ) : (
                   <button onClick={handleFollow}>
-                    {relationshipData.includes(currentUser.id)
+                    {relationshipData.includes(currentUser.userid)
                       ? "Following"
                       : "Follow"}
                   </button>
